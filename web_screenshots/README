@@ -1,0 +1,5 @@
+paginas.txt = urls para sacar screenshot, una por linea
+
+dependencias:
+
+apt-get install python-qt4 
