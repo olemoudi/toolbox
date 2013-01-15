@@ -1,0 +1,51 @@
+LETDOWN --- http://complemento.sourceforge.net/
+
+Acri Emanuele <crossbower@gmail.com>
+
+1) How it works:
+You can read this explanation written by Fyodor at
+http://insecure.org/stf/tcp-dos-attack-explained.html
+
+"The basic idea is to first firewall your source address to prevent your own OS
+ from interfering with your attack. Next you create hundreds or thousands of
+ connections to the TCP port you are targeting as follows:
+
+   1. Attacker sends a TCP SYN packet to the target port from his own IP address
+      to request a connection.
+   2. The target port is open, so it will respond with a SYN/ACK packet.
+      Remember that Attacker sent the SYN as a raw packet from userland rather
+      than using his operating system's connect() API to establish the
+      connections. So when Attacker's operating system's TCP stack sees the
+      unexpected SYN/ACK come back, it would normally destroy the nascent
+      connection by sending a reset (RST) packet.
+      This is why the special firewall rule was mentioned—to prevent such
+      interference by Attacker's OS. Instead Attacker's DoS client handles all
+      these packets by sniffing them from userland (generally using libpcap)
+      and building/sending the raw reply packets.
+   3. Using the initial sequence number and other information from the SYN/ACK,
+      Attacker sends an acknowledgment packet (the final step of the 3-way
+      handshake) to complete the connection. 
+
+ ...
+ ...
+ 
+ Once you have those thousands of open connections, you can get even nastier by
+ sending malicious data payloads customized for the service you're attacking.
+ For example, you can request a large file from web servers using each of your
+ open connections. The server will then load the first part of that file into
+ the OS TCP stack for sending, using precious kernel memory buffers. "
+
+2) Exaples:
+
+Generic attack:
+
+ # letdown -d 208.xx.xx.xx -s 192.168.1.x -p 21
+
+Attack against a webserver using payload and firewall options:
+ 
+ # letdown -d 208.xx.xx.xx -s 192.168.1.x -p 80 -f iptables -P payloads/http.txt
+
+Connections from 3 ports < 1024 and with the time option:
+
+ # letdown -d 208.xx.xx.xx -s 192.168.1.x -p 80 -x 80 -y 100 -t 10000
+
