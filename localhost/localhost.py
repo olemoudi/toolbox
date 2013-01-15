@@ -1,0 +1,50 @@
+#!/usr/bin/python
+
+import socket
+import sys
+import time
+import threadpool
+import threading
+
+output = open('localhosted.txt', 'w')
+
+i = 1
+
+def resolve(data):
+
+    try:
+        h = 'localhost.' + data[1].strip()
+        with plock:
+            print "%i checking %s..." % (data[0], h)
+        ip = socket.gethostbyname(h)
+        with plock:
+            print "[*] %s resolves to %s" % (h, ip)
+        with olock:
+            output.write(h + ',' + ip + '\n')
+            output.flush()
+    except:
+        pass
+    finally:
+        time.sleep(0.5)
+
+def Pass(data):
+    pass
+
+
+if __name__ == '__main__':
+
+
+    plock = threading.RLock()
+    olock = threading.RLock()
+    pool = threadpool.ThreadPool(15)
+
+    i = 1
+
+
+    for domain in open(sys.argv[1]):
+
+        pool.queueTask(resolve, (i,domain.strip()), Pass)
+        i += 1
+
+    pool.joinAll()
+
